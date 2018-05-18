@@ -1,12 +1,14 @@
 const Koa = require('koa');
 const koaBody = require('koa-body');
 const logger = require('koa-logger')
+const serve = require('koa-static');
 
 const router = require('./app/router');
 
 const app = new Koa();
 
-app.use(logger())
+app.use(logger());
+app.use(serve('/home/lizhaoji'));
 app.use(koaBody());
 app.use(router.routes());
 app.use(router.allowedMethods());
