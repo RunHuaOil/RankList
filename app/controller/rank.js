@@ -1,5 +1,7 @@
 const Joi = require('joi');
 const Redis = require('ioredis');
+const asyncBusboy = require('async-busboy');
+
 const redis = new Redis();
 
 let key = 'lizhaoji';
@@ -11,7 +13,8 @@ async function addScore(ctx) {
         name: Joi.string().min(1).max(8).required(),
         score: Joi.number().positive().integer().min(1).required()
     });
-    const { error, value } = Joi.validate(ctx.request.body.fields, schema);
+    const {files, fields} = await asyncBusboy(ctx.req);
+    const { error, value } = Joi.validate(fields, schema);
     if (error) return ctx.response.body = { code: 0, msg: error.toString() };
     if (value.key !== key) return ctx.response.body = { code: -1, msg: 'key error' };
 

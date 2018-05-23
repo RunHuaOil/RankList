@@ -9,6 +9,7 @@
   "author": "RunHuaOil",
   "license": "ISC",
   "dependencies": {
+    "async-busboy": "^0.6.2",
     "ioredis": "^3.2.2",
     "joi": "^13.2.0",
     "koa": "^2.5.1",
