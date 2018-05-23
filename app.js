@@ -9,7 +9,9 @@ const app = new Koa();
 
 app.use(logger());
 app.use(serve('/home/lizhaoji'));
-app.use(koaBody());
+app.use(koaBody({
+    multipart: true
+}));
 app.use(router.routes());
 app.use(router.allowedMethods());
 
