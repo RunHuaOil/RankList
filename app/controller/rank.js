@@ -9,7 +9,7 @@ let setKey = 'rank:score';
 async function addScore(ctx) {
     const schema = Joi.object().keys({
         key: Joi.string().token().min(1).required(),
-        name: Joi.string().min(1).max(8).required(),
+        name: Joi.string().min(1).max(16).required(),
         score: Joi.number().positive().integer().min(1).required()
     });
 
