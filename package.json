@@ -1,0 +1,17 @@
+{
+  "name": "RankList",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "git@github.com:RunHuaOil/RankList.git",
+  "author": "RunHuaOil <540060645@qq.com>",
+  "license": "MIT",
+  "dependencies": {
+    "ioredis": "^3.2.2",
+    "joi": "^13.3.0",
+    "koa": "^2.5.1",
+    "koa-body": "^2.5.0",
+    "koa-logger": "^3.2.0",
+    "koa-router": "^7.4.0",
+    "koa-static": "^4.0.3"
+  }
+}
