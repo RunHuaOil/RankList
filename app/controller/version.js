@@ -57,7 +57,9 @@ async function delVersion(ctx) {
     }
 
     if (newDataList.length > 0 ) {
-        await ctx.app.redis.hset(gameKey, value.gameName, JSON.stringify(newDataList));
+        if (newDataList.length !== dataList.length) {
+            await ctx.app.redis.hset(gameKey, value.gameName, JSON.stringify(newDataList));
+        }
     } else {
         await ctx.app.redis.hdel(gameKey, value.gameName);
     }
