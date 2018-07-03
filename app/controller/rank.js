@@ -1,7 +1,4 @@
 const Joi = require('joi');
-const Redis = require('ioredis');
-
-const redis = new Redis();
 
 let key = 'lizhaoji';
 let setKey = 'rank:score';
@@ -18,15 +15,15 @@ async function addScore(ctx) {
     if (error) return ctx.response.body = { code: 0, msg: error.toString() };
     if (value.key !== key) return ctx.response.body = { code: -1, msg: 'key error' };
 
-    let index = await redis.zrank(setKey, value.name);
+    let index = await ctx.app.redis.zrank(setKey, value.name);
     if (index !== null) return ctx.response.body = { code: -2, msg: 'name existed' };
 
     let [result, rankList] = await Promise.all([
-        redis.zadd(setKey, value.score, value.name),
-        redis.zrevrange(setKey, 100, -1)
+        ctx.app.redis.zadd(setKey, value.score, value.name),
+        ctx.app.redis.zrevrange(setKey, 100, -1)
     ]);
 
-    if (rankList.length !== 0) redis.zrem(setKey, rankList);
+    if (rankList.length !== 0) ctx.app.redis.zrem(setKey, rankList);
 
     ctx.response.body = { code: 1, msg: 'success to add score' }
 }
@@ -39,7 +36,7 @@ async function getRank(ctx) {
     if (error) return ctx.response.body = { code: 0, msg: error.toString() };
     if (value.key !== key) return ctx.response.body = { code: -1, msg: 'key error' };
 
-    let rankList = await redis.zrevrange(setKey, 0, 99, 'WITHSCORES');
+    let rankList = await ctx.app.redis.zrevrange(setKey, 0, 99, 'WITHSCORES');
 
     let dataList = [];
     while (rankList.length !== 0) {
