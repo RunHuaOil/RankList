@@ -2,6 +2,7 @@ const Joi = require('joi');
 
 const key = 'lizhaoji';
 const gameKey = 'game:version';
+const ipVisit = 'game:ip:visit';
 
 async function updateVersion(ctx) {
     const schema = Joi.object().keys({
@@ -68,7 +69,6 @@ async function delVersion(ctx) {
 
 
 async function getLatestVersion(ctx) {
-    console.log(ctx.request.ip);
     const schema = Joi.object().keys({
         key: Joi.string().token().min(1).required(),
         gameName: Joi.string().min(1).max(20).required(),
@@ -86,12 +86,31 @@ async function getLatestVersion(ctx) {
         return ctx.response.body = {code: -4, msg: `${value.gameName} is no exists`}
     }
 
+    // 记录ip访问了一次
+    await ctx.redis.sadd(ipVisit + value.gameName, ctx.request.ip);
+
     return ctx.response.body = {code: 1, msg: 'success to get latestVersion', data: dataList.pop()}
+}
+
+
+async function getVisitData(ctx) {
+    const schema = Joi.object().keys({
+        key: Joi.string().token().min(1).required(),
+        gameName: Joi.string().min(1).max(20).required(),
+    });
+    const {error, value} = Joi.validate(ctx.query, schema);
+    if (error) return ctx.response.body = {code: 0, msg: error.toString()};
+    if (value.key !== key) return ctx.response.body = {code: -1, msg: 'key error'};
+
+    let result = await ctx.app.redis.scard(ipVisit + value.gameName);
+
+    return ctx.response.body = {code: 1, msg: 'success to get visit data', data: result}
 }
 
 
 module.exports = {
     getLatestVersion,
     delVersion,
-    updateVersion
+    updateVersion,
+    getVisitData,
 };

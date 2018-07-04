@@ -13,4 +13,6 @@ router.post('/api/admin/version', version.updateVersion);
 router.delete('/api/admin/version', version.delVersion);
 router.get('/api/latestVersion', version.getLatestVersion);
 
+router.get('/api/admin/visit', version.getVisitData);
+
 module.exports = router;
