@@ -87,7 +87,7 @@ async function getLatestVersion(ctx) {
     }
 
     // 记录ip访问了一次
-    await ctx.redis.sadd(ipVisit + value.gameName, ctx.request.ip);
+    await ctx.app.redis.sadd(ipVisit + value.gameName, ctx.request.ip);
 
     return ctx.response.body = {code: 1, msg: 'success to get latestVersion', data: dataList.pop()}
 }
