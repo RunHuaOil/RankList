@@ -2,7 +2,6 @@ const Joi = require('joi');
 
 const key = 'lizhaoji';
 const gameKey = 'game:version';
-const ipVisit = 'game:ip:visit';
 
 async function updateVersion(ctx) {
     const schema = Joi.object().keys({
@@ -57,7 +56,7 @@ async function delVersion(ctx) {
         if (value.nVersion !== item.nVersion) newDataList.push(item);
     }
 
-    if (newDataList.length > 0 ) {
+    if (newDataList.length > 0) {
         if (newDataList.length !== dataList.length) {
             await ctx.app.redis.hset(gameKey, value.gameName, JSON.stringify(newDataList));
         }
@@ -86,8 +85,13 @@ async function getLatestVersion(ctx) {
         return ctx.response.body = {code: -4, msg: `${value.gameName} is no exists`}
     }
 
-    // 记录ip访问了一次
-    await ctx.app.redis.sadd(ipVisit + value.gameName, ctx.request.ip);
+    let date = new Date();
+    await Promise.all([
+        ctx.app.redis.hset(value.gameName + ':dailyVisit:' + date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
+            ctx.request.ip, new Date()),    // 记录每日访问数
+        ctx.app.redis.sadd(value.gameName + ':allVisit',
+            ctx.request.ip),    // 记录ip访问了一次
+    ]);
 
     return ctx.response.body = {code: 1, msg: 'success to get latestVersion', data: dataList.pop()}
 }
@@ -102,9 +106,21 @@ async function getVisitData(ctx) {
     if (error) return ctx.response.body = {code: 0, msg: error.toString()};
     if (value.key !== key) return ctx.response.body = {code: -1, msg: 'key error'};
 
-    let result = await ctx.app.redis.scard(ipVisit + value.gameName);
+    let allVisits = await ctx.app.redis.scard(value.gameName + ':allVisit');
 
-    return ctx.response.body = {code: 1, msg: 'success to get visit data', data: result}
+    let keys = await ctx.app.redis.keys(value.gameName + ':dailyVisit:*');
+
+    let DailyVisits = {};
+    for (let key of keys) {
+        DailyVisits[key] = {};
+        DailyVisits[key].count = (await ctx.app.redis.hlen(key));
+        DailyVisits[key].row = (await ctx.app.redis.hgetall(key));
+    }
+    return ctx.response.body = {
+        code: 1, msg: 'success to get visit data', data: {
+            allVisits, DailyVisits
+        }
+    }
 }
 
 
