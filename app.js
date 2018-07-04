@@ -8,6 +8,7 @@ const router = require('./app/router');
 
 const app = new Koa();
 
+app.proxy = true;
 app.redis = new Redis();
 app.use(koaBody({
     strict: false

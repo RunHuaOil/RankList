@@ -68,6 +68,7 @@ async function delVersion(ctx) {
 
 
 async function getLatestVersion(ctx) {
+    console.log(ctx.request.ip);
     const schema = Joi.object().keys({
         key: Joi.string().token().min(1).required(),
         gameName: Joi.string().min(1).max(20).required(),
