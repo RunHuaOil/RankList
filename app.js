@@ -9,9 +9,7 @@ const router = require('./app/router');
 const app = new Koa();
 
 app.proxy = true;
-app.redis = new Redis({
-    password: process.env.redisPass,
-});
+app.redis = new Redis(`redis://:${process.env.redisPass}@127.0.0.1:6379/0`);
 app.use(koaBody({
     strict: false
 }));
