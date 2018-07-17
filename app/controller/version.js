@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const moment = require('moment-timezone');
 
 const key = 'lizhaoji';
 const gameKey = 'game:version';
@@ -85,10 +86,10 @@ async function getLatestVersion(ctx) {
         return ctx.response.body = {code: -4, msg: `${value.gameName} is no exists`}
     }
 
-    let date = new Date();
+    let date = moment().tz("Asia/Shanghai");
     await Promise.all([
-        ctx.app.redis.hset(value.gameName + ':dailyVisit:' + date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
-            ctx.request.ip, new Date()),    // 记录每日访问数
+        ctx.app.redis.hset(`${value.gameName}:dailyVisit:${date.format('YYYY-MM-DD')}`,
+            ctx.request.ip, date.format('YYYY-MM-DD H:mm')),    // 记录每日访问数
         ctx.app.redis.sadd(value.gameName + ':allVisit',
             ctx.request.ip),    // 记录ip访问了一次
     ]);
