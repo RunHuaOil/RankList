@@ -9,7 +9,9 @@ const router = require('./app/router');
 const app = new Koa();
 
 app.proxy = true;
-app.redis = new Redis();
+app.redis = new Redis({
+    password: process.env.redisPass,
+});
 app.use(koaBody({
     strict: false
 }));
